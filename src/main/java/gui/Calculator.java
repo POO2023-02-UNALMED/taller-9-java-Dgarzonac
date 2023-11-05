@@ -16,9 +16,6 @@ import javafx.scene.text.Text;
 
 public class Calculator extends VBox implements EventHandler<ActionEvent>{
 	
-	String number1 = "";
-	String number2 = "";
-	String operator;
 	Text displayText;
 	
 	public Calculator(){
@@ -123,51 +120,79 @@ public class Calculator extends VBox implements EventHandler<ActionEvent>{
 		
 		this.getChildren().addAll(sp, gd);
 	}
-	float n1 = 0;
-	float n2 = 0;
+	public static boolean esNumero(String str) {
+	    try {
+	        Double.parseDouble(str);
+	        return true;
+	    } catch (NumberFormatException e) {
+	        return false;
+	    }
+	}
+
+	String number1 = "";
+	String number2 = "";
+	double n1 = 0;
+	double n2 = 0;
 	String operador = "";
-	float resultado = 0;
+	String input = "";
+	double resultado = 0;
+
 	@Override
 	public void handle(ActionEvent event) {
 	    Button b = (Button) event.getSource();
 	    String value = b.getText();
-		String[] operadores = {"/", "*", "-", "+"};
-		 if (Arrays.asList(operadores).contains(value)) {
-		        operador = value;
-		    } else {
-		    	switch(value){
-		    	case "=":
-		    		switch(operador) {
-	            	case "/":
-	            		resultado += n1/n2;
-	            		this.displayText.setText(String.valueOf(resultado));
-	            		break;
-	            	case "*":
-	            		resultado += n1*n2;
-	            		this.displayText.setText(String.valueOf(resultado));
-	            		break;
-	            	case "-":
-	            		resultado += n1-n2;
-	            		this.displayText.setText(String.valueOf(resultado));
-	            		break;
-	            	case "+":
-	            		resultado += n1+n2;
-	            		this.displayText.setText(String.valueOf(resultado));
-	            		break;
-		    		}
-		        case "C":
-		        	n1 = 0;
-	                n2 = 0;
-	                operador = "";
-	                resultado = 0;
-		        	break;
-		        default:
-		        	if (operador.isEmpty()) {
-		        		n1 = Float.parseFloat(value);
-		        	}else {
-		        		n2 = Float.parseFloat(value);
-		        		}
-		        	}
-		    	}
-		 }
+	    String[] operadores = {"/", "*", "-", "+"};
+	    if (esNumero(value)){
+    		input+=value;
+    		displayText.setText(input);
+    	}
+	    else if (Arrays.asList(operadores).contains(value)) {
+	        operador = value;
+	        if(number1.isEmpty()) {
+	        	number1=input;
+	        	operador=value;
+	        	input="";
+	        	displayText.setText(number1 + operador);
+	        }
+	    } else if ("=".equals(value)){
+	    	if (!number1.isEmpty() && !operador.isEmpty() && !input.isEmpty()){
+	        number2=input;
+	        double n1 = Double.parseDouble(number1);
+	        double n2 = Double.parseDouble(number2);
+	        
+	                switch(operador) {
+	                    case "/":
+	                    	if(n2!=0){
+	                    		resultado = n1/n2;
+	                    	}
+	                    	else {
+	                    		displayText.setText("Error: Division por cero");
+	                    		return;
+	                    	}
+	                        break;
+	                    case "*":
+	                        resultado = n1*n2; 
+	                        break;
+	                    case "-":
+	                        resultado = n1-n2; 
+	                        break;
+	                    case "+":
+	                        resultado = n1+n2; 
+	                        break;
+	                }
+	                this.displayText.setText(String.valueOf(resultado));
+	              	number1 = String.valueOf(resultado);
+	              	operador="";
+	              	input="";
+	        }
+	    }
+	    else if ("C".equals(value)) {
+	        // Restablecer todas las variables
+	        number1 = "";
+	        number2 = "";
+	        operador = "";
+	        input = "";
+	        displayText.setText("");
+	    }
 	}
+}
